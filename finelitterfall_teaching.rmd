@@ -71,17 +71,19 @@ data_flf2 = data_flf %>% dplyr::rename(
   brom = bromeliads_g_per_trap,
   epi = epiphytes_g_per_trap,
   other = other_g_per_trap
-) %>%
+) %>% # we just rename them for simplicity
   dplyr::mutate(
     seeds = NA,
     date = as.Date(
       paste(data_flf$year, data_flf$month, data_flf$day, sep = "-"),
       format = "%Y-%m-%d"
-    ),
+    ),# we convert date into a timestamp in R
     date = as.POSIXct(date),
     total = select(., leaves:palm_fruits_g_per_trap) %>% apply(1, sum, na.rm =
                                                                  TRUE)
-  )
+  )# we sum up column from leaves to palm_fruits. This will be our total litter fall
+
+
 
 
 # In some rows, only total litterfall is recorded
@@ -89,16 +91,13 @@ total_only = data_flf2$total == 0 &
   !is.na(data_flf2$total_litterfall_g_per_trap)
 data_flf2[total_only, ]$total = data_flf2[total_only, ]$total_litterfall_g_per_trap
   
-  
+#  
   ### Sanity check of the inputs.
   
   data_flf2$total[which(data_flf2$total>1500)] <- NA   # remove outliers with totalf > 1000
   data_flf2$total[which(data_flf2$total<0)]   <- NA   # remove implausible totallf (negative litter)
   
-  # Calculate leaf area ****need density from photos, we assume average SLA = 100g/m2
-  # leaflaifA = leaffA/100   # convert to area     
-  
-  ### flf per trap per day
+
   
   # TO DO: For the first collection interval, assume 14 days. At the moment, the code ignores the first collection.
   
